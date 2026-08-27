@@ -1,18 +1,105 @@
-export const LAYERS = {
-  population: { id: 'population', name: 'Population Density', category: 'analytical', icon: 'users', description: 'Population density per km²', unit: 'people/km²', color: '#3b82f6', min: 0, max: 500, dataset: { source: 'World Bank', year: 2023 } },
-  gdp: { id: 'gdp', name: 'GDP per Capita', category: 'analytical', icon: 'dollar', description: 'Gross Domestic Product per capita', unit: 'USD', color: '#10b981', min: 0, max: 20000, dataset: { source: 'IMF', year: 2023 } },
-  dsi: { id: 'dsi', name: 'DSI Score', category: 'analytical', icon: 'chart', description: 'Development Suitability Index', unit: 'score', color: '#8b5cf6', min: 0, max: 100, dataset: { source: 'Custom Analysis', year: 2024 } },
-  clusters: { id: 'clusters', name: 'ML Clusters', category: 'analytical', icon: 'cpu', description: 'Machine Learning regional clusters', unit: 'cluster', color: '#f59e0b', min: 1, max: 5, dataset: { source: 'K-Means', year: 2024 } },
-  cities: { id: 'cities', name: 'Cities', category: 'operational', icon: 'building', description: 'Major cities and capitals', unit: 'count', color: '#ef4444', min: 0, max: 100, dataset: { source: 'Natural Earth', year: 2023 } },
-  heatmap: { id: 'heatmap', name: 'Heatmap', category: 'operational', icon: 'flame', description: 'Activity density heatmap', unit: 'intensity', color: '#ec4899', min: 0, max: 100, dataset: { source: 'Aggregated Data', year: 2024 } },
-  corridors: { id: 'corridors', name: 'Transport Corridors', category: 'operational', icon: 'truck', description: 'Major transport routes', unit: 'km', color: '#06b6d4', min: 0, max: 1000, dataset: { source: 'OpenStreetMap', year: 2023 } },
-  rivers: { id: 'rivers', name: 'Rivers', category: 'operational', icon: 'waves', description: 'Major river systems', unit: 'km', color: '#0ea5e9', min: 0, max: 5000, dataset: { source: 'Natural Earth', year: 2023 } },
-  elevation: { id: 'elevation', name: 'Elevation Zones', category: 'operational', icon: 'mountain', description: 'Elevation zones classification', unit: 'meters', color: '#84cc16', min: 0, max: 6000, dataset: { source: 'SRTM', year: 2023 } }
-};
-
-export const LAYER_CATEGORIES = {
-  analytical: { name: 'Analytical', layers: ['population', 'gdp', 'dsi', 'clusters'] },
-  operational: { name: 'Operational', layers: ['cities', 'heatmap', 'corridors', 'rivers', 'elevation'] }
-};
-
-export default LAYERS;
+import { LAYERS, LAYER_TYPES } from "../types/core";
+export const layerRegistry = [
+  {
+    id: LAYERS.COUNTRIES,
+    name: "Countries",
+    description: "Latin America country reference boundaries.",
+    category: "Reference",
+    type: LAYER_TYPES.REFERENCE,
+    dataset: "latam-countries",
+    version: "1",
+    source: "Existing project dataset",
+    minZoom: 0,
+    maxZoom: 8,
+    style: "boundary"
+  },
+  {
+    id: LAYERS.ADMIN1,
+    name: "Administrative Level 1",
+    description: "Country subdivisions where source data is available.",
+    category: "Reference",
+    type: LAYER_TYPES.REFERENCE,
+    dataset: "colombia-admin1",
+    version: "1",
+    source: "Existing project dataset",
+    minZoom: 3,
+    maxZoom: 14,
+    style: "boundary"
+  },
+  {
+    id: LAYERS.POPULATION_DENSITY,
+    name: "Population Density",
+    description: "Population divided by area where both source attributes are available.",
+    category: "Analytical",
+    type: LAYER_TYPES.ANALYTICAL,
+    dataset: "latam-countries",
+    version: "1",
+    source: "Existing project socioeconomic attributes",
+    legend: "people/km²"
+  },
+  {
+    id: LAYERS.GDP_PER_CAPITA,
+    name: "GDP per Capita",
+    description: "GDP divided by population or verified source GDP-per-capita field.",
+    category: "Analytical",
+    type: LAYER_TYPES.ANALYTICAL,
+    dataset: "latam-countries",
+    version: "1",
+    source: "Existing project socioeconomic attributes",
+    legend: "currency/person"
+  },
+  {
+    id: LAYERS.DSI,
+    name: "Development Suitability Index",
+    description: "Deterministic weighted suitability model based only on available source variables.",
+    category: "Analytical",
+    type: LAYER_TYPES.ANALYTICAL,
+    dataset: "available project attributes",
+    version: "dsi-v1-deterministic",
+    source: "ADHAM GIS AI methodology",
+    legend: "0-100"
+  },
+  {
+    id: LAYERS.ML_CLUSTERS,
+    name: "ML Clusters",
+    description: "Deterministic K-Means clustering over available numeric socioeconomic features.",
+    category: "Analytical",
+    type: LAYER_TYPES.ANALYTICAL,
+    dataset: "available project attributes",
+    version: "kmeans-v1",
+    source: "ADHAM GIS AI ML pipeline"
+  },
+  {
+    id: LAYERS.CITIES,
+    name: "Cities",
+    description: "Reference city layer when source data is available.",
+    category: "Reference",
+    type: LAYER_TYPES.REFERENCE,
+    dataset: "city-source",
+    version: "1",
+    source: "External/source-backed data required"
+  },
+  {
+    id: LAYERS.RIVERS,
+    name: "Rivers",
+    description: "Hydrographic reference layer.",
+    category: "Reference",
+    type: LAYER_TYPES.REFERENCE,
+    dataset: "hydrography-source",
+    version: "1",
+    source: "External/source-backed data required"
+  },
+  {
+    id: LAYERS.ROADS,
+    name: "Roads",
+    description: "Transportation network reference layer.",
+    category: "Operational",
+    type: LAYER_TYPES.OPERATIONAL,
+    dataset: "transport-source",
+    version: "1",
+    source: "External/source-backed data required"
+  }
+];
+export function getLayer(id) {
+  return layerRegistry.find(x => x.id === id);
+}

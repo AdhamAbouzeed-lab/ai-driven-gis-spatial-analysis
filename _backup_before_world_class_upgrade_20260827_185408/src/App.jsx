@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import MapComponent from './components/map/MapComponent';
 import LeftSidebar from './components/layout/LeftSidebar';
