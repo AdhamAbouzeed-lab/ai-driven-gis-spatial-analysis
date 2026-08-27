@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useState, useEffect } from 'react';
+﻿import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 const AppContext = createContext();
 export const useApp = () => {
   const context = useContext(AppContext);
@@ -17,14 +17,24 @@ export const AppProvider = ({ children }) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [notifications, setNotifications] = useState([
+  // Real map state - will be updated by MapComponent
+  const [mapState, setMapState] = useState({
+    zoom: 2.8,
+    center: [-60, -15],
+    bearing: 0,
+    pitch: 0
+  });
+  const [notifications] = useState([
     { id: 1, title: 'Welcome to ADHAM GIS AI', message: 'System initialized', type: 'info', read: false, timestamp: new Date() },
-    { id: 2, title: 'Data Loaded', message: '25 countries loaded', type: 'success', read: false, timestamp: new Date() }
+    { id: 2, title: 'Data Loaded', message: '25 countries with real boundaries', type: 'success', read: false, timestamp: new Date() }
   ]);
   useEffect(() => {
     localStorage.setItem('theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+  const updateMapState = useCallback((newState) => {
+    setMapState(prev => ({ ...prev, ...newState }));
+  }, []);
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   const toggleLeftSidebar = () => setLeftSidebarOpen(prev => !prev);
   const toggleRightSidebar = () => setRightSidebarOpen(prev => !prev);
@@ -36,6 +46,7 @@ export const AppProvider = ({ children }) => {
     selectedCountry, setSelectedCountry,
     activeLayer, setActiveLayer,
     visibleLayers, setVisibleLayers,
+    mapState, updateMapState,
     leftSidebarOpen, rightSidebarOpen, aiChatOpen, settingsOpen, notificationsOpen,
     toggleLeftSidebar, toggleRightSidebar, toggleAiChat, toggleSettings, toggleNotifications,
     searchQuery, setSearchQuery, searchResults, setSearchResults,

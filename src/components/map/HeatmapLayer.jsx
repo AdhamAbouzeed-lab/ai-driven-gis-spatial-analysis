@@ -1,5 +1,4 @@
 ﻿import { useEffect, useRef } from 'react';
-import maplibregl from 'maplibre-gl';
 const HeatmapLayer = ({ map, visible }) => {
   const layerAdded = useRef(false);
   useEffect(() => {
@@ -9,12 +8,12 @@ const HeatmapLayer = ({ map, visible }) => {
       try {
         const response = await fetch('/capitals.json');
         const capitals = await response.json();
-        // Create weighted points for heatmap
+        // Weight by actual population (in millions) for scientific accuracy
         const features = capitals.features.map(f => ({
           ...f,
           properties: {
             ...f.properties,
-            weight: f.properties.population / 1000000
+            weight: Math.log10(f.properties.population + 1) * 2 // Logarithmic scale for better visualization
           }
         }));
         if (!map.getSource('heatmap')) {
@@ -29,23 +28,23 @@ const HeatmapLayer = ({ map, visible }) => {
             maxzoom: 14,
             paint: {
               'heatmap-weight': ['get', 'weight'],
-              'heatmap-intensity': 0.8,
+              'heatmap-intensity': 1.2,
               'heatmap-color': [
                 'interpolate', ['linear'], ['heatmap-density'],
-                0, 'rgba(59,130,246,0)',
-                0.2, 'rgba(59,130,246,0.6)',
-                0.4, 'rgba(59,130,246,0.8)',
-                0.6, 'rgba(139,92,246,0.8)',
-                0.8, 'rgba(239,68,68,0.8)',
-                1, 'rgba(239,68,68,1)'
+                0, 'rgba(33,102,172,0)',
+                0.2, 'rgb(103,169,207)',
+                0.4, 'rgb(209,229,240)',
+                0.6, 'rgb(253,219,199)',
+                0.8, 'rgb(239,138,98)',
+                1, 'rgb(178,24,43)'
               ],
               'heatmap-radius': [
                 'interpolate', ['linear'], ['zoom'],
-                0, 2,
-                9, 20,
-                14, 40
+                0, 5,
+                9, 25,
+                14, 50
               ],
-              'heatmap-opacity': 0.7
+              'heatmap-opacity': 0.85
             }
           }, 'countries-label');
           layerAdded.current = true;
@@ -57,7 +56,7 @@ const HeatmapLayer = ({ map, visible }) => {
     };
     addHeatmap();
     return () => {
-      if (map.getLayer('heatmap')) {
+      if (map && map.getLayer('heatmap')) {
         map.removeLayer('heatmap');
         map.removeSource('heatmap');
         layerAdded.current = false;

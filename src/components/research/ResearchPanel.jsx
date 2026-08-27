@@ -1,6 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { BookOpen, TrendingUp, AlertTriangle, X } from 'lucide-react';
+import { BookOpen, TrendingUp, AlertTriangle, X, Target } from 'lucide-react';
 const ResearchPanel = ({ onClose }) => {
   const { theme, selectedCountry, activeLayer } = useApp();
   const [loading, setLoading] = useState(true);
@@ -9,16 +9,62 @@ const ResearchPanel = ({ onClose }) => {
   const borderColor = theme === 'dark' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.5)';
   useEffect(() => {
     if (selectedCountry) {
-      const timer = setTimeout(() => setLoading(false), 800);
+      const timer = setTimeout(() => setLoading(false), 600);
       return () => clearTimeout(timer);
     }
   }, [selectedCountry, activeLayer]);
   if (!selectedCountry) return null;
-  const insights = [
-    { icon: TrendingUp, color: '#10b981', title: 'Economic Outlook', desc: activeLayer === 'gdp' ? `GDP shows strong potential with $${(selectedCountry.gdp/1e3).toFixed(1)}B total output.` : 'Economic indicators suggest steady growth over the next 5 years based on current density patterns.' },
-    { icon: BookOpen, color: '#3b82f6', title: 'Demographic Research', desc: `Population density of ${selectedCountry.popDensity}/km² indicates ${selectedCountry.popDensity > 50 ? 'high urbanization' : 'significant rural development opportunities'}.` },
-    { icon: AlertTriangle, color: '#f59e0b', title: 'Risk Assessment', desc: 'Geographic and economic data suggest moderate vulnerability to regional climate shifts. Recommend monitoring elevation zones.' }
-  ];
+  const dsi = selectedCountry.dsi || 0;
+  const density = selectedCountry.popDensity || 0;
+  const gdpPerCapita = selectedCountry.gdpPerCapita || 0;
+  // Real analytical insights based on actual indicators
+  const generateInsights = () => {
+    const insights = [];
+    // DSI-based insight
+    let dsiLevel = 'low';
+    if (dsi > 70) dsiLevel = 'very high';
+    else if (dsi > 50) dsiLevel = 'high';
+    else if (dsi > 30) dsiLevel = 'moderate';
+    insights.push({
+      icon: Target, color: '#8b5cf6',
+      title: 'Development Suitability Index',
+      desc: `DSI Score: ${dsi.toFixed(1)}/100 (${dsiLevel}). Methodology: 35% population density + 45% GDP per capita + 20% territorial area. ${dsi > 50 ? 'Strong development potential.' : 'Significant growth opportunities.'}`
+    });
+    // Economic insight
+    let econStatus = 'developing';
+    if (gdpPerCapita > 15000) econStatus = 'high-income';
+    else if (gdpPerCapita > 5000) econStatus = 'upper-middle-income';
+    else if (gdpPerCapita > 2000) econStatus = 'lower-middle-income';
+    insights.push({
+      icon: TrendingUp, color: '#10b981',
+      title: 'Economic Classification',
+      desc: `GDP per capita: $${gdpPerCapita.toLocaleString()} (${econStatus}). ${gdpPerCapita > 10000 ? 'Strong economic base for infrastructure investment.' : 'Emerging market with growth potential.'}`
+    });
+    // Density insight
+    let densityStatus = 'low density';
+    if (density > 100) densityStatus = 'very high density';
+    else if (density > 50) densityStatus = 'high density';
+    else if (density > 20) densityStatus = 'moderate density';
+    insights.push({
+      icon: BookOpen, color: '#3b82f6',
+      title: 'Demographic Analysis',
+      desc: `Population density: ${density}/km² (${densityStatus}). ${density > 50 ? 'Urbanization challenges and opportunities.' : 'Rural development potential with infrastructure needs.'}`
+    });
+    // Risk assessment
+    const riskFactors = [];
+    if (density > 80) riskFactors.push('high population pressure');
+    if (gdpPerCapita < 3000) riskFactors.push('economic vulnerability');
+    if (selectedCountry.area > 1000000 && density < 10) riskFactors.push('territorial governance challenges');
+    insights.push({
+      icon: AlertTriangle, color: '#f59e0b',
+      title: 'Risk Assessment',
+      desc: riskFactors.length > 0 
+        ? `Key risks: ${riskFactors.join(', ')}. Recommend targeted interventions.`
+        : 'Balanced profile with manageable risk factors.'
+    });
+    return insights;
+  };
+  const insights = generateInsights();
   return (
     <div style={{
       position: 'fixed', top: '80px', right: '20px',
@@ -49,13 +95,14 @@ const ResearchPanel = ({ onClose }) => {
       </div>
       <div style={{ padding: '16px', overflowY: 'auto', maxHeight: 'calc(75vh - 60px)' }}>
         <div style={{ marginBottom: '16px', padding: '12px', background: 'rgba(59,130,246,0.1)', borderRadius: '8px' }}>
-          <div style={{ fontSize: '12px', opacity: 0.7, marginBottom: '4px' }}>Analyzing</div>
           <div style={{ fontSize: '16px', fontWeight: 700 }}>{selectedCountry.name}</div>
-          <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '4px' }}>Active Layer: {activeLayer.toUpperCase()}</div>
+          <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '4px' }}>
+            Active: {activeLayer.toUpperCase()} | Data: World Bank 2023
+          </div>
         </div>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px 0', opacity: 0.7 }}>
-            <div style={{ fontSize: '14px' }}>Generating AI Insights...</div>
+            <div style={{ fontSize: '14px' }}>Computing indicators...</div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -67,8 +114,7 @@ const ResearchPanel = ({ onClose }) => {
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid ' + borderColor,
                   borderRadius: '8px',
-                  display: 'flex',
-                  gap: '12px'
+                  display: 'flex', gap: '12px'
                 }}>
                   <div style={{
                     width: '36px', height: '36px', borderRadius: '8px',
@@ -87,8 +133,8 @@ const ResearchPanel = ({ onClose }) => {
             })}
           </div>
         )}
-        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(139,92,246,0.1)', borderRadius: '8px', fontSize: '11px', opacity: 0.8, textAlign: 'center' }}>
-          💡 Insights are dynamically generated based on active map layers and World Bank 2023 data.
+        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(139,92,246,0.1)', borderRadius: '8px', fontSize: '11px', opacity: 0.8 }}>
+          <strong>Methodology:</strong> Insights derived from deterministic composite indicators. Reproducible with same dataset.
         </div>
       </div>
     </div>

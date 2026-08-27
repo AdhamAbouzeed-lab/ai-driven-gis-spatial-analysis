@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import MapComponent from './components/map/MapComponent';
 import LeftSidebar from './components/layout/LeftSidebar';
@@ -16,6 +16,7 @@ import ResearchPanel from './components/research/ResearchPanel';
 import MeasurementTools from './components/measurement/MeasurementTools';
 import DataDownloadCenter from './components/download/DataDownloadCenter';
 import ProjectManager from './components/project/ProjectManager';
+import SpatialQueryEngine from './components/query/SpatialQueryEngine';
 import HeatmapLayer from './components/map/HeatmapLayer';
 import './i18n/config';
 const AppContent = () => {
@@ -27,6 +28,8 @@ const AppContent = () => {
   const [measureOpen, setMeasureOpen] = useState(false);
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
+  const [queryOpen, setQueryOpen] = useState(false);
+  const [highlightedCountries, setHighlightedCountries] = useState([]);
   const [timeSeriesOpen, setTimeSeriesOpen] = useState(false);
   const mapRef = useRef(null);
   return (
@@ -38,6 +41,7 @@ const AppContent = () => {
         onResearchClick={() => { setResearchOpen(!researchOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
         onMeasureClick={() => { setMeasureOpen(!measureOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
         onDownloadClick={() => { setDownloadOpen(!downloadOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setProjectOpen(false); }}
+        onQueryClick={() => { setQueryOpen(!queryOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
         onProjectClick={() => { setProjectOpen(!projectOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); }}
       />
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
@@ -48,7 +52,8 @@ const AppContent = () => {
         {researchOpen && <ResearchPanel onClose={() => setResearchOpen(false)} />}
         {measureOpen && <MeasurementTools map={mapRef.current} onClose={() => setMeasureOpen(false)} />}
         {downloadOpen && <DataDownloadCenter onClose={() => setDownloadOpen(false)} />}
-        {projectOpen && <ProjectManager onClose={() => setProjectOpen(false)} />}
+        {projectOpen && <ProjectManager onClose={() => setProjectOpen(false)} mapRef={mapRef} />}
+        {queryOpen && <SpatialQueryEngine onClose={() => setQueryOpen(false)} onQueryResult={setHighlightedCountries} />}
         <div className="map-container" style={{ flex: 1, position: 'relative' }}>
           <MapComponent onMapReady={(m) => mapRef.current = m} />
           <HeatmapLayer map={mapRef.current} visible={visibleLayers.includes('heatmap')} />
@@ -68,7 +73,7 @@ const AppContent = () => {
           fontSize: '14px', fontWeight: 600, border: 'none'
         }}> Open Time Series</button>
       )}
-      {aiChatOpen && <AIChat />}
+      {aiChatOpen && <AIChat onClose={() => {}} />}
       {notificationsOpen && <NotificationsPanel />}
       {settingsOpen && <SettingsPanel />}
     </div>
@@ -78,3 +83,4 @@ function App() {
   return <AppProvider><AppContent /></AppProvider>;
 }
 export default App;
+

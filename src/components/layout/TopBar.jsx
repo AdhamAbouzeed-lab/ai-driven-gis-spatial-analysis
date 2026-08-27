@@ -1,4 +1,4 @@
-﻿import { useApp } from '../../context/AppContext';
+import { useApp } from '../../context/AppContext';
 import SearchBar from '../search/SearchBar';
 import { Sun, Moon, Bell, Settings, MessageSquare, PanelLeftClose, PanelRightClose, PanelLeft, PanelRight, Download, Sliders, Layers, BookOpen, Ruler, Save, FolderOpen, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -25,9 +25,9 @@ const TopBar = ({ onBaseMapsClick, onExportClick, onFiltersClick, onResearchClic
         background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
         color: color, cursor: 'pointer', fontSize: '13px'
       }}>
-        <option value="en">🇬🇧 EN</option>
-        <option value="ar">🇸🇦 AR</option>
-        <option value="es">🇪 ES</option>
+        <option value="en">???? EN</option>
+        <option value="ar">???? AR</option>
+        <option value="es">?? ES</option>
       </select>
       <button onClick={onDownloadClick} style={btnStyle} title={t('Download Data')}><Download size={20} /></button>
       <button onClick={onProjectClick} style={btnStyle} title={t('Save Project')}><Save size={20} /></button>

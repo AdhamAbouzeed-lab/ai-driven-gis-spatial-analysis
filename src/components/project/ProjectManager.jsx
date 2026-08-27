@@ -1,25 +1,30 @@
 ﻿import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Save, FolderOpen, X, Download, Upload } from 'lucide-react';
-const ProjectManager = ({ onClose }) => {
-  const { theme, activeLayer, visibleLayers, selectedCountry } = useApp();
-  const [saving, setSaving] = useState(false);
+import { Save, X, Upload } from 'lucide-react';
+const ProjectManager = ({ onClose, mapRef }) => {
+  const { theme, activeLayer, visibleLayers, selectedCountry, mapState } = useApp();
+  const [loading, setLoading] = useState(false);
   const bg = theme === 'dark' ? 'rgba(15,23,42,0.98)' : 'rgba(255,255,255,0.98)';
   const color = theme === 'dark' ? '#fff' : '#000';
   const borderColor = theme === 'dark' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.5)';
   const saveProject = () => {
     const projectData = {
+      version: '2.1',
+      appName: 'ADHAM GIS AI',
       timestamp: new Date().toISOString(),
       mapState: {
+        zoom: mapState.zoom,
+        center: mapState.center,
+        bearing: mapState.bearing,
+        pitch: mapState.pitch,
         activeLayer,
         visibleLayers,
-        selectedCountry: selectedCountry ? selectedCountry.name : null,
-        zoom: 4,
-        center: [-60, -15]
+        selectedCountry: selectedCountry ? selectedCountry.name : null
       },
       metadata: {
-        version: '2.0',
-        appName: 'ADHAM GIS AI'
+        dataSources: ['Natural Earth', 'World Bank 2023'],
+        crs: 'EPSG:4326',
+        dsiMethodology: 'Weighted: 35% density + 45% GDP/capita + 20% area'
       }
     };
     const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
@@ -29,7 +34,6 @@ const ProjectManager = ({ onClose }) => {
     link.download = `adham-gis-project-${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    setSaving(false);
   };
   const loadProject = (event) => {
     const file = event.target.files[0];
@@ -38,9 +42,22 @@ const ProjectManager = ({ onClose }) => {
     reader.onload = (e) => {
       try {
         const projectData = JSON.parse(e.target.result);
-        console.log('Loading project:', projectData);
-        alert('Project loaded! Map will update with saved state.');
-        // Here you would dispatch actions to restore the map state
+        // Validate structure
+        if (!projectData.mapState) throw new Error('Invalid project file');
+        const state = projectData.mapState;
+        // Restore map viewport if mapRef available
+        if (mapRef && mapRef.current) {
+          mapRef.current.flyTo({
+            center: state.center,
+            zoom: state.zoom,
+            bearing: state.bearing || 0,
+            pitch: state.pitch || 0,
+            duration: 2000
+          });
+        }
+        // Dispatch custom events to restore state
+        window.dispatchEvent(new CustomEvent('restoreProject', { detail: state }));
+        alert(`Project loaded successfully!\nZoom: ${state.zoom.toFixed(2)}\nLayer: ${state.activeLayer}`);
       } catch (error) {
         alert('Error loading project: ' + error.message);
       }
@@ -74,55 +91,31 @@ const ProjectManager = ({ onClose }) => {
         </button>
       </div>
       <div style={{ padding: '16px' }}>
-        <button
-          onClick={saveProject}
-          disabled={saving}
-          style={{
-            width: '100%',
-            padding: '14px',
-            marginBottom: '12px',
-            background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-            border: 'none',
-            borderRadius: '8px',
-            color: '#fff',
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
-            fontSize: '14px'
-          }}
-        >
-          <Save size={18} /> Save Current Project
+        <div style={{ marginBottom: '12px', padding: '10px', background: 'rgba(59,130,246,0.1)', borderRadius: '6px', fontSize: '11px' }}>
+          <div>Zoom: {mapState.zoom.toFixed(2)}</div>
+          <div>Center: [{mapState.center[0].toFixed(2)}, {mapState.center[1].toFixed(2)}]</div>
+          <div>Layer: {activeLayer}</div>
+        </div>
+        <button onClick={saveProject} style={{
+          width: '100%', padding: '12px', marginBottom: '10px',
+          background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+          border: 'none', borderRadius: '8px', color: '#fff',
+          fontWeight: 600, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+        }}>
+          <Save size={16} /> Save Current State
         </button>
         <label style={{
-          width: '100%',
-          padding: '14px',
+          width: '100%', padding: '12px',
           background: 'rgba(255,255,255,0.05)',
           border: '2px dashed ' + borderColor,
-          borderRadius: '8px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '10px',
-          fontSize: '14px',
-          textAlign: 'center'
+          borderRadius: '8px', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
         }}>
-          <Upload size={18} />
+          <Upload size={16} />
           <span>Load Project</span>
           <input type="file" accept=".json" onChange={loadProject} style={{ display: 'none' }} />
         </label>
-        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(59,130,246,0.05)', borderRadius: '8px', fontSize: '12px', opacity: 0.8 }}>
-          <strong>What gets saved:</strong>
-          <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-            <li>Active layers</li>
-            <li>Visible layers</li>
-            <li>Selected country</li>
-            <li>Map view settings</li>
-          </ul>
-        </div>
       </div>
     </div>
   );
