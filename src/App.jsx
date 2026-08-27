@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import MapComponent from './components/map/MapComponent';
 import LeftSidebar from './components/layout/LeftSidebar';
@@ -29,20 +29,20 @@ const AppContent = () => {
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
   const [queryOpen, setQueryOpen] = useState(false);
-  const [highlightedCountries, setHighlightedCountries] = useState([]);
   const [timeSeriesOpen, setTimeSeriesOpen] = useState(false);
+  const [highlightedCountries, setHighlightedCountries] = useState([]);
   const mapRef = useRef(null);
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', background: theme === 'dark' ? '#0f172a' : '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', background: theme === 'dark' ? '#0f172a' : '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif' }}>
       <TopBar 
-        onBaseMapsClick={() => { setBaseMapsOpen(!baseMapsOpen); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
-        onExportClick={() => { setExportOpen(!exportOpen); setBaseMapsOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
-        onFiltersClick={() => { setFiltersOpen(!filtersOpen); setBaseMapsOpen(false); setExportOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
-        onResearchClick={() => { setResearchOpen(!researchOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
-        onMeasureClick={() => { setMeasureOpen(!measureOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
-        onDownloadClick={() => { setDownloadOpen(!downloadOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setProjectOpen(false); }}
+        onBaseMapsClick={() => { setBaseMapsOpen(!baseMapsOpen); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); setQueryOpen(false); }}
+        onExportClick={() => { setExportOpen(!exportOpen); setBaseMapsOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); setQueryOpen(false); }}
+        onFiltersClick={() => { setFiltersOpen(!filtersOpen); setBaseMapsOpen(false); setExportOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); setQueryOpen(false); }}
+        onResearchClick={() => { setResearchOpen(!researchOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); setQueryOpen(false); }}
+        onMeasureClick={() => { setMeasureOpen(!measureOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setDownloadOpen(false); setProjectOpen(false); setQueryOpen(false); }}
+        onDownloadClick={() => { setDownloadOpen(!downloadOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setProjectOpen(false); setQueryOpen(false); }}
+        onProjectClick={() => { setProjectOpen(!projectOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setQueryOpen(false); }}
         onQueryClick={() => { setQueryOpen(!queryOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); setProjectOpen(false); }}
-        onProjectClick={() => { setProjectOpen(!projectOpen); setBaseMapsOpen(false); setExportOpen(false); setFiltersOpen(false); setResearchOpen(false); setMeasureOpen(false); setDownloadOpen(false); }}
       />
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         {leftSidebarOpen && <LeftSidebar />}
@@ -55,7 +55,7 @@ const AppContent = () => {
         {projectOpen && <ProjectManager onClose={() => setProjectOpen(false)} mapRef={mapRef} />}
         {queryOpen && <SpatialQueryEngine onClose={() => setQueryOpen(false)} onQueryResult={setHighlightedCountries} />}
         <div className="map-container" style={{ flex: 1, position: 'relative' }}>
-          <MapComponent onMapReady={(m) => mapRef.current = m} />
+          <MapComponent onMapReady={(m) => mapRef.current = m} highlightedCountries={highlightedCountries} />
           <HeatmapLayer map={mapRef.current} visible={visibleLayers.includes('heatmap')} />
         </div>
         {rightSidebarOpen && <RightSidebar />}
@@ -63,15 +63,7 @@ const AppContent = () => {
       <DynamicLegend />
       {timeSeriesOpen && <TimeSeriesPanel onClose={() => setTimeSeriesOpen(false)} />}
       {!timeSeriesOpen && selectedCountry && (
-        <button onClick={() => setTimeSeriesOpen(true)} style={{
-          position: 'fixed', bottom: '20px', left: '20px',
-          background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-          borderRadius: '50px', padding: '12px 20px',
-          color: '#fff', cursor: 'pointer', zIndex: 100,
-          boxShadow: '0 8px 24px rgba(59,130,246,0.4)',
-          display: 'flex', alignItems: 'center', gap: '10px',
-          fontSize: '14px', fontWeight: 600, border: 'none'
-        }}> Open Time Series</button>
+        <button onClick={() => setTimeSeriesOpen(true)} style={{ position: 'fixed', bottom: '20px', left: '20px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', borderRadius: '50px', padding: '12px 20px', color: '#fff', cursor: 'pointer', zIndex: 100, boxShadow: '0 8px 24px rgba(59,130,246,0.4)', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', fontWeight: 600, border: 'none' }}> Open Time Series</button>
       )}
       {aiChatOpen && <AIChat onClose={() => {}} />}
       {notificationsOpen && <NotificationsPanel />}
@@ -83,4 +75,3 @@ function App() {
   return <AppProvider><AppContent /></AppProvider>;
 }
 export default App;
-
