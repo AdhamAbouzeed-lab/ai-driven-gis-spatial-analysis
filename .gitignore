@@ -4,3 +4,5 @@ nul
 dist/
 
 *.log
+
+_backup_before_world_class_upgrade_*/

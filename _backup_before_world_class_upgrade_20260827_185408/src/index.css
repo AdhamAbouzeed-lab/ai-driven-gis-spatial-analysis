@@ -1,8 +1,0 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
-#root { width: 100vw; height: 100vh; }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
-::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.5); border-radius: 4px; }
-.maplibregl-popup { max-width: 300px !important; }
-.maplibregl-popup-content { border-radius: 8px !important; padding: 0 !important; }
